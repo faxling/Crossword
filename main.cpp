@@ -1,3 +1,5 @@
+/* Test of CrossWord generator */
+
 #include <QCoreApplication>
 #include <QMap>
 #include <QSet>
@@ -6,12 +8,9 @@
 #include <ctime>
 #include <iostream>
 #include <random>
-
 #include "crossword.h"
 
-
-
-int main(int, char**) {
+int main(int argc, char** argv) {
   static std::mt19937 gen(time(0));
   static std::uniform_int_distribution<> dis(0, 25);
   static std::uniform_int_distribution<> dis2(4, 10);
@@ -34,29 +33,31 @@ int main(int, char**) {
       nIndexMax = i;
     }
 
-    g_ocWordList.append(sWord);
+    ocWordList.append(sWord);
   }
 */
   constexpr int nH = 40;
   constexpr int nW = 40;
+  QCoreApplication a(argc, argv);
 
   CrossWord oCrossWord(nW, nH);
 
   CrossWord::Vec ocWordList = {
-      "HZOFPOSF",   "KWIWLAOQZO", "ZQKRBWRF",   "ZCYVV",      "JQQQ",
-      "UJFYQ",      "EPNUUZHN",   "AMJQK",      "JLSW",       "ITPCXTJ",
-      "VNBL",       "JILAL",      "XMDBYCMBVY", "CCVHDWVT",   "TETUBTSA",
-      "APLSRR",     "NTUZKQJ",    "FSBNUUP",    "HIJDVZK",    "HTKJX",
-      "WLETZ",      "IFSUUXO",    "EXCSVNUH",   "UKVGGUDKY",  "SAJTWYBIN",
-      "MPQZCSTZTG", "QYHYPBCFA",  "JFWWVD",     "HBRYHXCQR",  "TAESQ",
-      "UCLPGDCP",   "UNITEVL",    "ZWUMGKQV",   "ZFWIMNOZZS", "DCFMZY",
-      "MPEQ",       "WPVLAO",     "ZQRGQRJJU",  "YUANQ",      "GFAXGM"};
+      "FREDRIK",   "HZOFPOSF",   "KWIWLAOQZO", "ZQKRBWRF",   "ZCYVV",
+      "JQQQ",      "UJFYQ",      "EPNUUZHN",   "AMJQK",      "JLSW",
+      "ITPCXTJ",   "VNBL",       "JILAL",      "XMDBYCMBVY", "CCVHDWVT",
+      "TETUBTSA",  "APLSRR",     "NTUZKQJ",    "FSBNUUP",    "HIJDVZK",
+      "HTKJX",     "WLETZ",      "IFSUUXO",    "EXCSVNUH",   "UKVGGUDKY",
+      "SAJTWYBIN", "MPQZCSTZTG", "QYHYPBCFA",  "JFWWVD",     "HBRYHXCQR",
+      "TAESQ",     "UCLPGDCP",   "UNITEVL",    "ZWUMGKQV",   "ZFWIMNOZZS",
+      "DCFMZY",    "MPEQ",       "WPVLAO",     "ZQRGQRJJU",  "YUANQ",
+      "GFAXGM"};
 
   oCrossWord.AssignWordList(ocWordList);
 
-  oCrossWord.SetSeedWordHorizontal(10, nH / 2, "FREDRIK");
+  oCrossWord.SetSeedWordHorizontal(10, nH / 2, "FREDRIK", 0);
 
-  while (oCrossWord.IterateArea(10, 10, nW - 10, nH - 10) != 0)
+  while (oCrossWord.IterateArea(10, 10, nW - 10, nH - 10) == true)
     ;
 
   // oCrossWord.Print();
@@ -69,12 +70,28 @@ int main(int, char**) {
   }
   const auto& r1 = oR.second;
   for (auto oI = r1.begin(); oI != r1.end(); ++oI) {
-    printf("%d %d %ls\n", oI.key().first, oI.key().second,
-           (wchar_t*)oI.value().utf16());
+    int nT = 0;
+    if (oI.value().HorizontalQ > -1)
+      nT += 1;
+    if (oI.value().VerticalQ > -1)
+      nT += 2;
+    switch (nT) {
+      case 1:
+        printf("x%d y%d has Horizontal Question %d\n", oI.key().first,
+               oI.key().second, oI.value().HorizontalQ);
+        break;
+      case 2:
+        printf("x%d y%d has Vertical Question %d\n", oI.key().first,
+               oI.key().second, oI.value().VerticalQ);
+        break;
+      case 3:
+        printf("x%d y%d has Horizontal and Vertical Question %d %d\n",
+               oI.key().first, oI.key().second, oI.value().VerticalQ,
+               oI.value().HorizontalQ);
+        break;
+    }
   }
   return 1;
-
-  // QCoreApplication a(argc, argv);
 
   //  return a.exec();
 }
